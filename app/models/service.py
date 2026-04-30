@@ -1,4 +1,3 @@
-# app/models/service.py
 from decimal import Decimal
 from typing import Optional
 
@@ -9,9 +8,7 @@ from app.db.base import Base
 from app.models.mixins import TimestampMixin, SoftDeleteMixin
 from app.models.user import User
 from app.utils.enums import ServiceStatus
-
-#if TYPE_CHECKING:
-    #from app.models.category import Category
+from app.models.category import Category
 
 
 class Service(Base, TimestampMixin, SoftDeleteMixin):
@@ -51,7 +48,7 @@ class Service(Base, TimestampMixin, SoftDeleteMixin):
     )
 
     seller: Mapped["User"] = relationship(back_populates="services")
-    # category: Mapped["Category"] = relationship(back_populates="services")
+    category: Mapped["Category"] = relationship(back_populates="services")
 
     def __repr__(self) -> str:
         return f"<Service id={self.id} title={self.title} seller_id={self.seller_id}>"
