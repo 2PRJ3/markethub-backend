@@ -7,12 +7,13 @@ class Settings(BaseSettings):
     APP_VERSION: str = "1.0.0"
 
     DATABASE_URL: str
-    DB_ECHO: bool = True
+    DATABASE_ECHO: bool = True
 
     model_config = SettingsConfigDict(
         env_file=".env",
         env_file_encoding="utf-8",
-        case_sensitive=True
+        case_sensitive=True,
+        extra="ignore",
     )
 
 @lru_cache()

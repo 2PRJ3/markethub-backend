@@ -1,11 +1,12 @@
-from typing import Optional
+from typing import Optional, TYPE_CHECKING
 from sqlalchemy import String, Boolean,Enum as SQLEnum, text
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.db.base import Base
 from app.utils.enums import UserRole
+if TYPE_CHECKING:
+    from app.models.service import Service
 from app.models.mixins import TimestampMixin, SoftDeleteMixin
-from app.models.service import Service
 
 class User(Base, TimestampMixin, SoftDeleteMixin):
     __tablename__ = "users"
@@ -23,7 +24,7 @@ class User(Base, TimestampMixin, SoftDeleteMixin):
     university: Mapped[Optional[str]] = mapped_column(String(255), nullable=True)
 
     role: Mapped[UserRole] = mapped_column(
-        SQLEnum(UserRole, name="user_role"),
+        SQLEnum(UserRole, name="user_role", values_callable=lambda x: [e.value for e in x]),
         nullable=False,
         default=UserRole.USER,
         server_default=UserRole.USER.value,

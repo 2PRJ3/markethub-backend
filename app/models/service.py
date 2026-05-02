@@ -1,14 +1,16 @@
 from decimal import Decimal
-from typing import Optional
+from typing import Optional, TYPE_CHECKING
 
 from sqlalchemy import String, Text, Integer, Numeric, ForeignKey, Enum as SQLEnum, text
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.db.base import Base
-from app.models.mixins import TimestampMixin, SoftDeleteMixin
-from app.models.user import User
 from app.utils.enums import ServiceStatus
-from app.models.category import Category
+from app.models.mixins import TimestampMixin, SoftDeleteMixin
+
+if TYPE_CHECKING:
+    from app.models.user import User
+    from app.models.category import Category
 
 
 class Service(Base, TimestampMixin, SoftDeleteMixin):
@@ -33,7 +35,7 @@ class Service(Base, TimestampMixin, SoftDeleteMixin):
     image_url: Mapped[Optional[str]] = mapped_column(String(500), nullable=True)
 
     status: Mapped[ServiceStatus] = mapped_column(
-        SQLEnum(ServiceStatus, name="service_status"),
+        SQLEnum(ServiceStatus, name="service_status", values_callable=lambda x: [e.value for e in x]),
         nullable=False,
         default=ServiceStatus.ACTIVE,
         server_default=ServiceStatus.ACTIVE.value,
