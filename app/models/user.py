@@ -22,6 +22,7 @@ class User(Base, TimestampMixin, SoftDeleteMixin):
     avatar_url: Mapped[str] = mapped_column(String(500), nullable=True)
     bio:  Mapped[Optional[str]] = mapped_column(String(1000), nullable=True)
     university: Mapped[Optional[str]] = mapped_column(String(255), nullable=True)
+    study_sector: Mapped[Optional[str]] = mapped_column(String(255), nullable=True)
 
     role: Mapped[UserRole] = mapped_column(
         SQLEnum(UserRole, name="user_role", values_callable=lambda x: [e.value for e in x]),

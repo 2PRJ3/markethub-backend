@@ -27,17 +27,16 @@ class BaseRepository(Generic[ModelType]):
         stmt = select(self.model).offset(skip).limit(limit)
         return list(self.db.execute(stmt).scalars().all())
 
-    def create(self, obj_in: dict) -> ModelType:
+    def create(self, db_obj: ModelType) -> ModelType:
         """
         Crée un nouvel objet
         """
-        db_obj = self.model(**obj_in)
         self.db.add(db_obj)
         self.db.flush()
         self.db.refresh(db_obj)
         return db_obj
 
-    def update(self, db_obj: ModelType, obj_in: dict) -> None:
+    def update(self, db_obj: ModelType, obj_in: dict) -> ModelType:
         """
         Mettre à jour un objet existant
         """

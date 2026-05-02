@@ -52,5 +52,13 @@ class UserPublic(BaseModel):
 
     model_config = {"from_attributes": True}
 
+class PasswordChange(BaseModel):
+    current_password: str
+    new_password: str
+
+    @field_validator("new_password")
+    @classmethod
+    def password_strength(cls, value: str) -> str:
+        return validate_password(value)
 class UserAdminResponse(UserResponse):
     study_sector: Optional[str] = None
