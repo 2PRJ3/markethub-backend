@@ -4,10 +4,12 @@ from sqlalchemy.orm import Session
 from app.models.user import User
 from app.repositories.user import UserRepository
 from app.schemas.user import UserCreate, UserUpdate, PasswordChange
-from app.core.security import hash_password, verify_password
 from app.utils.enums import UserRole
 
+from app.core.security import hash_password, verify_password, create_access_token, create_refresh_token
 from app.core.exceptions import NotFoundError, EmailAlreadyExistsError, InvalidCredentialsError, UserSuspendedError
+from app.schemas.auth import TokenResponse
+
 
 class UserService:
     def __init__(self, db:Session):
@@ -89,6 +91,13 @@ class UserService:
             raise UserSuspendedError("Ce compte est suspendu")
 
         return user
+
+    def login(self, email: str, password: str) -> TokenResponse:
+        user = self.authenticate(email, password)
+        return TokenResponse(
+            access_token=create_access_token(subject=user.id),
+            refresh_token=create_refresh_token(subject=user.id),
+        )
 
     def suspend_user(self, user_id: int) -> User:
         user = self.get_by_id(user_id)
