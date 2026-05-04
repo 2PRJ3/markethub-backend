@@ -74,7 +74,7 @@ def get_current_user(request: Request, service: UserService = Depends(get_user_s
 
 
 def get_current_admin(current_user: User = Depends(get_current_user)) -> User:
-    if current_user.role == UserRole.ADMIN:
+    if current_user.role != UserRole.ADMIN:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Accès interdit"

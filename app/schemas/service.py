@@ -7,7 +7,7 @@ from app.utils.enums import ServiceStatus
 from app.schemas.user import UserPublic
 
 class ServiceBase(BaseModel):
-    title: str = Field(..., min_length=5, max_length=50)
+    title: str = Field(..., min_length=5, max_length=100)
     description: str = Field(..., min_length=20, max_length=2000)
     price: Decimal = Field(...,gt=0, decimal_places=2)
     category_id: int
