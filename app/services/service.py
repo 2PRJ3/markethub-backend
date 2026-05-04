@@ -49,6 +49,7 @@ class ServiceService:
         if service.seller_id != user_id:
             raise PermissionError("Vous n'êtes pas permis à modifier ce service")
         update_data = data.model_dump(exclude_unset=True)
+        print(f"[DEBUG] Champs reçus pour update: {update_data}")
 
         if update_data.get("status") == ServiceStatus.BANNED:
             raise PermissionError( "Ce service a été bannis, impossible de le modifier")
