@@ -23,7 +23,7 @@ def list_services(skip: int = 0, limit: int = 20, db: Session = Depends(get_db))
     service_layer = ServiceService(db)
     return service_layer.list_services(skip=skip, limit=limit)
 
-@router.get("/{user_id}", response_model=ServiceDetail)
+@router.get("/{service_id}", response_model=ServiceDetail)
 def get_service(service_id: int, db: Session = Depends(get_db)):
     service_layer = ServiceService(db)
 
@@ -66,7 +66,7 @@ def delete_service(service_id: int, current_user: User = Depends(get_current_use
 
 
 @router.patch("/{service_id}/admin/status", response_model=ServiceResponse)
-def admin_set_status(service_id: int, new_status: ServiceStatus, admin: User = Depends(get_current_admin), db: Session = Depends(get_db)):
+def admin_set_status(service_id: int, new_status: ServiceStatus, _admin: User = Depends(get_current_admin), db: Session = Depends(get_db)):
     service_layer = ServiceService(db)
 
     try:
@@ -76,7 +76,7 @@ def admin_set_status(service_id: int, new_status: ServiceStatus, admin: User = D
 
 
 @router.delete("/{service_id}/admin", status_code=status.HTTP_204_NO_CONTENT)
-def admin_delete_service(service_id: int, admin: User = Depends(get_current_admin), db:Session = Depends(get_db)):
+def admin_delete_service(service_id: int, _admin: User = Depends(get_current_admin), db:Session = Depends(get_db)):
     service_layer = ServiceService(db)
 
     try:
