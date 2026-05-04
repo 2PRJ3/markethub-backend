@@ -1,14 +1,15 @@
-from typing import Optional, List
+from sqlalchemy import func, select
 from sqlalchemy.orm import Session
-from sqlalchemy import select, func, or_
+
 from app.models.user import User
 from app.repositories.base import BaseRepository
+
 
 class UserRepository(BaseRepository[User]):
     def __init__(self, db: Session):
         super().__init__(User, db)
 
-    def get_by_email(self, email: str) -> Optional[User]:
+    def get_by_email(self, email: str) -> User | None:
         """
         Récupérer l'utilisateur par email
         """
@@ -16,7 +17,7 @@ class UserRepository(BaseRepository[User]):
         return self.db.execute(stmt).scalar_one_or_none()
 
     def email_exists(self, email: str) -> bool:
-        """ Vérifier si l'email existe"""
+        """Vérifier si l'email existe"""
         stmt = select(func.count()).select_from(User).where(User.email == email.lower())
         result = self.db.execute(stmt).scalar_one()
         return result > 0
@@ -44,16 +45,16 @@ class UserRepository(BaseRepository[User]):
     #
     #     return list(self.db.execute(stmt).scalars().all())
 
-    def suspend(self, user:User) -> User:
-        """ Suspendre un utilisateur"""
+    def suspend(self, user: User) -> User:
+        """Suspendre un utilisateur"""
         user.is_suspended = True
         user.is_active = False
         self.db.flush()
         self.db.refresh(user)
         return user
 
-    def reactivate(self, user:User) -> User:
-        """ Réactiver un utilisateur"""
+    def reactivate(self, user: User) -> User:
+        """Réactiver un utilisateur"""
         user.is_suspended = False
         user.is_active = True
         self.db.flush()

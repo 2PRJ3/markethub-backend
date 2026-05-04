@@ -1,15 +1,13 @@
-from typing import Generator, Optional
+from collections.abc import Generator
 
 from fastapi import Depends, HTTPException, Request, status
 from jose import JWTError
 from sqlalchemy.orm import Session
 
-
-from app.db.session import SessionLocal
-from app.services.user_service import UserService
-from app.core.security import decode_token
 from app.core.config import settings
 from app.core.exceptions import NotFoundError
+from app.core.security import decode_token
+from app.db.session import SessionLocal
 from app.models.user import User
 from app.services.user_service import UserService
 from app.utils.enums import UserRole
@@ -22,10 +20,12 @@ def get_db() -> Generator[Session, None, None]:
     finally:
         db.close()
 
+
 def get_user_service(db: Session = Depends(get_db)) -> UserService:
     return UserService(db)
 
-def extract_token(request: Request) -> Optional[str]:
+
+def extract_token(request: Request) -> str | None:
     token = request.cookies.get(settings.ACCES_COOKIE_NAME)
 
     if token:
@@ -36,10 +36,10 @@ def extract_token(request: Request) -> Optional[str]:
 
     return None
 
+
 def get_current_user(request: Request, service: UserService = Depends(get_user_service)) -> User:
     credentials_exception = HTTPException(
-        status_code=status.HTTP_401_UNAUTHORIZED,
-        detail="Non authentifié"
+        status_code=status.HTTP_401_UNAUTHORIZED, detail="Non authentifié"
     )
     token = extract_token(request)
 
@@ -58,25 +58,22 @@ def get_current_user(request: Request, service: UserService = Depends(get_user_s
         user_id_int = int(user_id_str)
 
     except (JWTError, ValueError):
-        raise credentials_exception
+        raise credentials_exception from None
 
     try:
         user = service.get_by_id(user_id_int)
     except NotFoundError:
-        raise credentials_exception
+        raise credentials_exception from None
 
     if user.is_suspended or not user.is_active:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
-            detail="Ce compte est supsendu. Veuillez contacter le support technique"
+            detail="Ce compte est supsendu. Veuillez contacter le support technique",
         )
     return user
 
 
 def get_current_admin(current_user: User = Depends(get_current_user)) -> User:
     if current_user.role != UserRole.ADMIN:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Accès interdit"
-        )
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Accès interdit")
     return current_user

@@ -1,10 +1,12 @@
-from enum import Enum
+from enum import StrEnum
 
-class UserRole(str, Enum):
+
+class UserRole(StrEnum):
     USER = "user"
     ADMIN = "admin"
 
-class ServiceStatus(str, Enum):
+
+class ServiceStatus(StrEnum):
     ACTIVE = "active"
     INACTIVE = "inactive"
     BANNED = "banned"

@@ -1,26 +1,29 @@
-from typing import Generic, TypeVar, Type, Optional, List
+from typing import TypeVar
+
+from sqlalchemy import func, select
 from sqlalchemy.orm import Session
-from sqlalchemy import select, func
 
 from app.db.base import Base
 
 ModelType = TypeVar("ModelType", bound=Base)
 
-class BaseRepository(Generic[ModelType]):
+
+class BaseRepository[ModelType]:
     """
     Repository générique pour CRUD
     """
-    def __init__(self, model: Type[ModelType], db: Session):
+
+    def __init__(self, model: type[ModelType], db: Session):
         self.model = model
         self.db = db
 
-    def get_by_id(self, id: int) -> Optional[ModelType]:
+    def get_by_id(self, id: int) -> ModelType | None:
         """
         Récupérer un objet par son id
         """
         return self.db.get(self.model, id)
 
-    def get_all(self, skip: int = 0, limit: int = 100) -> List[ModelType]:
+    def get_all(self, skip: int = 0, limit: int = 100) -> list[ModelType]:
         """
         Récupérer tous les objets avec pagination
         """
