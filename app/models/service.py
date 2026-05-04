@@ -1,16 +1,17 @@
 from decimal import Decimal
-from typing import Optional, TYPE_CHECKING
+from typing import TYPE_CHECKING
 
-from sqlalchemy import String, Text, Integer, Numeric, ForeignKey, Enum as SQLEnum, text
+from sqlalchemy import Enum as SQLEnum
+from sqlalchemy import ForeignKey, Integer, Numeric, String, Text, text
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.db.base import Base
+from app.models.mixins import SoftDeleteMixin, TimestampMixin
 from app.utils.enums import ServiceStatus
-from app.models.mixins import TimestampMixin, SoftDeleteMixin
 
 if TYPE_CHECKING:
-    from app.models.user import User
     from app.models.category import Category
+    from app.models.user import User
 
 
 class Service(Base, TimestampMixin, SoftDeleteMixin):
@@ -32,19 +33,19 @@ class Service(Base, TimestampMixin, SoftDeleteMixin):
     title: Mapped[str] = mapped_column(String(100), nullable=False)
     description: Mapped[str] = mapped_column(Text, nullable=False)
     price: Mapped[Decimal] = mapped_column(Numeric(10, 2), nullable=False)
-    image_url: Mapped[Optional[str]] = mapped_column(String(500), nullable=True)
+    image_url: Mapped[str | None] = mapped_column(String(500), nullable=True)
 
     status: Mapped[ServiceStatus] = mapped_column(
-        SQLEnum(ServiceStatus, name="service_status", values_callable=lambda x: [e.value for e in x]),
+        SQLEnum(
+            ServiceStatus, name="service_status", values_callable=lambda x: [e.value for e in x]
+        ),
         nullable=False,
         default=ServiceStatus.ACTIVE,
         server_default=ServiceStatus.ACTIVE.value,
         index=True,
     )
 
-    average_rating: Mapped[Optional[float]] = mapped_column(
-        Numeric(3, 2), nullable=True
-    )
+    average_rating: Mapped[float | None] = mapped_column(Numeric(3, 2), nullable=True)
     reviews_count: Mapped[int] = mapped_column(
         Integer, nullable=False, default=0, server_default=text("0")
     )

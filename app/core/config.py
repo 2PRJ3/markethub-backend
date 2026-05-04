@@ -1,8 +1,11 @@
-from pydantic_settings import BaseSettings, SettingsConfigDict
-from pathlib import Path
 from functools import lru_cache
+from pathlib import Path
+
+from pydantic_settings import BaseSettings, SettingsConfigDict
 
 BASE_DIR = Path(__file__).resolve().parents[2]
+
+
 class Settings(BaseSettings):
     APP_NAME: str = "MarketHub API"
     APP_VERSION: str = "1.0.0"
@@ -28,8 +31,10 @@ class Settings(BaseSettings):
         extra="ignore",
     )
 
-@lru_cache()
+
+@lru_cache
 def get_settings() -> Settings:
     return Settings()
+
 
 settings = get_settings()

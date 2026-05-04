@@ -1,0 +1,21 @@
+# Ruff configuration
+# Docs: https://docs.astral.sh/ruff/
+
+line-length = 100
+target-version = "py312"
+
+[lint]
+
+select = ["E", "W", "F", "I", "B", "UP", "SIM"]
+ignore = [
+    "E501",
+    "B008",
+]
+
+[lint.per-file-ignores]
+"tests/*" = ["B011"]
+"alembic/versions/*" = ["E", "W", "F", "I"]
+
+[format]
+quote-style = "double"
+indent-style = "space"

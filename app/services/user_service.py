@@ -1,18 +1,26 @@
-from typing import Optional
 from sqlalchemy.orm import Session
 
+from app.core.exceptions import (
+    EmailAlreadyExistsError,
+    InvalidCredentialsError,
+    NotFoundError,
+    UserSuspendedError,
+)
+from app.core.security import (
+    create_access_token,
+    create_refresh_token,
+    hash_password,
+    verify_password,
+)
 from app.models.user import User
 from app.repositories.user import UserRepository
-from app.schemas.user import UserCreate, UserUpdate, PasswordChange
-from app.utils.enums import UserRole
-
-from app.core.security import hash_password, verify_password, create_access_token, create_refresh_token
-from app.core.exceptions import NotFoundError, EmailAlreadyExistsError, InvalidCredentialsError, UserSuspendedError
 from app.schemas.auth import TokenResponse
+from app.schemas.user import PasswordChange, UserCreate, UserUpdate
+from app.utils.enums import UserRole
 
 
 class UserService:
-    def __init__(self, db:Session):
+    def __init__(self, db: Session):
         self.db = db
         self.repo = UserRepository(db)
 
@@ -20,9 +28,7 @@ class UserService:
         normalized_email = data.email.lower().strip()
 
         if self.repo.email_exists(normalized_email):
-            raise EmailAlreadyExistsError(
-                f"L'email {normalized_email} est déjà utilisé"
-            )
+            raise EmailAlreadyExistsError(f"L'email {normalized_email} est déjà utilisé")
 
         user = User(
             email=normalized_email,
@@ -35,7 +41,7 @@ class UserService:
             avatar_url=data.avatar_url,
             role=UserRole.USER,
             is_active=True,
-            is_suspended=False
+            is_suspended=False,
         )
 
         self.repo.create(user)
@@ -82,8 +88,8 @@ class UserService:
     def authenticate(self, email: str, password: str) -> User:
         try:
             user = self.get_by_email(email)
-        except NotFoundError:
-            raise InvalidCredentialsError("Email ou mot de passe invalide")
+        except NotFoundError as error:
+            raise InvalidCredentialsError("Email ou mot de passe invalide") from error
         if not verify_password(password, user.password_hash):
             raise InvalidCredentialsError("Email ou mot de passe invalide")
 
