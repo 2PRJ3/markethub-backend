@@ -19,7 +19,6 @@ class UserBase(BaseModel):
 class UserCreate(UserBase):
     password: str
 
-
     @field_validator("password")
     @classmethod
     def password_strength(cls, value: str) -> str:
