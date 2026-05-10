@@ -13,11 +13,12 @@ class UserBase(BaseModel):
     university: str
     bio: str | None = None
     avatar_url: str | None = None
+    study_sector: str | None = None
 
 
 class UserCreate(UserBase):
     password: str
-    study_sector: str | None = None
+
 
     @field_validator("password")
     @classmethod
