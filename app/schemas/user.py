@@ -1,6 +1,6 @@
 from datetime import datetime
-from typing import Optional
-from pydantic import BaseModel, EmailStr, field_validator, Field
+
+from pydantic import BaseModel, EmailStr, Field, field_validator
 
 from app.utils.enums import UserRole
 from app.utils.validators import validate_password
@@ -10,10 +10,10 @@ class UserBase(BaseModel):
     email: EmailStr = Field(..., examples=["john@example.com"])
     first_name: str = Field(..., examples=["John"])
     last_name: str = Field(..., examples=["DOE"])
-    university: Optional[str] = Field(default=None, examples=[None])
-    bio: Optional[str | None] = Field(default=None, examples=[None])
-    avatar_url: Optional[str | None] = Field(default=None, examples=[None])
-    study_sector: Optional[str | None] = Field(default=None, examples=[None])
+    university: str | None = Field(default=None, examples=[None])
+    bio: str | None = Field(default=None, examples=[None])
+    avatar_url: str | None = Field(default=None, examples=[None])
+    study_sector: str | None = Field(default=None, examples=[None])
 
 
 class UserCreate(UserBase):

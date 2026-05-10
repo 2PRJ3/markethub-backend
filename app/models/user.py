@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING
 
 from sqlalchemy import Boolean, String, text
 from sqlalchemy import Enum as SQLEnum
@@ -23,14 +23,10 @@ class User(Base, TimestampMixin, SoftDeleteMixin):
 
     first_name: Mapped[str] = mapped_column(String(100), nullable=False)
     last_name: Mapped[str] = mapped_column(String(100), nullable=False)
-    avatar_url: Mapped[Optional[str]] = mapped_column(String(500), nullable=True, default=None)
-    bio: Mapped[Optional[str | None]] = mapped_column(String(1000), nullable=True, default=None)
-    university: Mapped[Optional[str | None]] = mapped_column(
-        String(255), nullable=True, default=None
-    )
-    study_sector: Mapped[Optional[str | None]] = mapped_column(
-        String(255), nullable=True, default=None
-    )
+    avatar_url: Mapped[str | None] = mapped_column(String(500), nullable=True, default=None)
+    bio: Mapped[str | None] = mapped_column(String(1000), nullable=True, default=None)
+    university: Mapped[str | None] = mapped_column(String(255), nullable=True, default=None)
+    study_sector: Mapped[str | None] = mapped_column(String(255), nullable=True, default=None)
 
     role: Mapped[UserRole] = mapped_column(
         SQLEnum(UserRole, name="user_role", values_callable=lambda x: [e.value for e in x]),
