@@ -90,4 +90,14 @@ def logout(response: Response):
 
 @router.get("/me", summary="Retourner profil connecté")
 def get_me(current_user: User = Depends(get_current_user)):
-    return {"id": current_user.id, "email": current_user.email}
+    return {
+        "id": current_user.id,
+        "email": current_user.email,
+        "first_name": current_user.first_name,
+        "last_name": current_user.last_name,
+        "role": current_user.role,
+        "bio": current_user.bio,
+        "avatar_url": current_user.avatar_url,
+        "study_sector": current_user.study_sector,
+        "university": current_user.university,
+    }
