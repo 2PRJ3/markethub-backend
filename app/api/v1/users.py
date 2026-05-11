@@ -1,5 +1,4 @@
 from fastapi import APIRouter, Depends, status
-
 from app.api.deps import get_current_user, get_user_service
 from app.models.user import User
 from app.schemas.user import PasswordChange, UserCreate, UserPublic, UserResponse, UserUpdate
@@ -40,6 +39,9 @@ def update_user(
     status_code=status.HTTP_204_NO_CONTENT,
     summary="Changer le mot de passe",
 )
-def change_password(payload: PasswordChange,  current_user: User = Depends(get_current_user), service: UserService = Depends(get_user_service)
+def change_password(
+    payload: PasswordChange,
+    current_user: User = Depends(get_current_user),
+    service: UserService = Depends(get_user_service),
 ) -> None:
     service.change_password(current_user.id, payload)
