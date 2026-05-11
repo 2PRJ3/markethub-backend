@@ -1,8 +1,10 @@
 from fastapi import APIRouter, Depends, status
+
 from app.api.deps import get_current_user, get_user_service
 from app.models.user import User
 from app.schemas.user import PasswordChange, UserCreate, UserPublic, UserResponse, UserUpdate
 from app.services.user_service import UserService
+
 router = APIRouter(prefix="/users", tags=["users"])
 
 
