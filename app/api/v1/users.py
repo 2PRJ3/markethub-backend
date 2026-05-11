@@ -36,11 +36,10 @@ def update_user(
 
 
 @router.post(
-    "/{user_id}/change-password",
+    "/me/change-password",
     status_code=status.HTTP_204_NO_CONTENT,
     summary="Changer le mot de passe",
 )
-def change_password(
-    user_id: int, payload: PasswordChange, service: UserService = Depends(get_user_service)
+def change_password(payload: PasswordChange,  current_user: User = Depends(get_current_user), service: UserService = Depends(get_user_service)
 ) -> None:
-    service.change_password(user_id, payload)
+    service.change_password(current_user.id, payload)
