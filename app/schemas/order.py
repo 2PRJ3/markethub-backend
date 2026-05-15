@@ -78,3 +78,24 @@ class OrderSummary(BaseModel):
     created_at: datetime
 
     model_config = {"from_attributes": True}
+
+
+class OrderContextForSeller(BaseModel):
+    id: int
+    buyer: UserPublic
+    brief: str
+    created_at: datetime
+
+    model_config = {"from_attributes": True}
+
+
+class SellerOrderItemResponse(BaseModel):
+    id: int
+    service: ServiceSummary
+    unit_price: Decimal
+    status: OrderItemStatus
+    created_at: datetime
+
+    order: OrderContextForSeller
+
+    model_config = {"from_attributes": True}
