@@ -5,6 +5,7 @@ Revises: ba1efc5fb827
 Create Date: 2026-05-16 20:48:03.392062
 
 """
+from sqlalchemy.dialects import postgresql
 from typing import Sequence, Union
 
 from alembic import op
@@ -29,7 +30,7 @@ def upgrade() -> None:
     sa.Column('type', sa.Enum('PAYMENT', 'REFUND', name='transaction_type', native_enum=False), nullable=False),
     sa.Column('status', sa.Enum('PENDING', 'SUCCESS', 'FAILED', name='transaction_status', native_enum=False), nullable=False),
     sa.Column('reference', sa.String(length=64), nullable=False),
-    sa.Column('idempotency_key', sa.String(length=64), nullable=True),
+    sa.Column('idempotency_key',  postgresql.UUID(as_uuid=True), nullable=True),
     sa.Column('failure_reason', sa.Enum('CARD_DECLINED', 'INSUFFICIENT_FUNDS', 'INVALID_CARD', 'PROCESSING_ERROR', name='payment_failure_reason', native_enum=False), nullable=True),
     sa.Column('created_at', sa.DateTime(timezone=True), server_default=sa.text('now()'), nullable=False),
     sa.ForeignKeyConstraint(['order_id'], ['orders.id'], ondelete='RESTRICT'),

@@ -1,8 +1,10 @@
 from datetime import datetime
 from decimal import Decimal
+from uuid import UUID
 
 from sqlalchemy import DateTime, ForeignKey, Index, Numeric, String
 from sqlalchemy import Enum as SEnum
+from sqlalchemy.dialects.postgresql import UUID as PG_UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy.sql import func
 
@@ -40,7 +42,7 @@ class Transaction(Base):
 
     reference: Mapped[str] = mapped_column(String(64), nullable=False)
 
-    idempotency_key: Mapped[str | None] = mapped_column(String(64), nullable=True)
+    idempotency_key: Mapped[UUID | None] = mapped_column(PG_UUID(as_uuid=True), nullable=True)
 
     failure_reason: Mapped[PaymentFailureReason | None] = mapped_column(
         SEnum(PaymentFailureReason, name="payment_failure_reason", native_enum=False), nullable=True
