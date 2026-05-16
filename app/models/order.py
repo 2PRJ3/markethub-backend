@@ -40,7 +40,7 @@ class Order(Base, TimestampMixin):
         PG_UUID(as_uuid=True), unique=True, index=True, nullable=False
     )
 
-    buyer: Mapped[User] = relationship(foreign_keys=[buyer_id], lazy="joined")
+    buyer: Mapped["User"] = relationship(foreign_keys=[buyer_id], lazy="joined")
 
     items: Mapped[list["OrderItem"]] = relationship(
         back_populates="order", cascade="all, delete-orphan", passive_deletes=True, lazy="selectin"

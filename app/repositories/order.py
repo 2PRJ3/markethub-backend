@@ -1,7 +1,7 @@
 from uuid import UUID
 
 from sqlalchemy import func, select
-from sqlalchemy.orm import Session, joinedload, selectinload
+from sqlalchemy.orm import Session, contains_eager, joinedload, selectinload
 
 from app.models.order import Order
 from app.models.order_item import OrderItem
@@ -60,9 +60,9 @@ class OrderRepository(BaseRepository[Order]):
             .order_by(Order.created_at.desc())
             .offset(skip)
             .limit(limit)
-            .distinct()
             .options(
-                joinedload(OrderItem.order).joinedload(Order.buyer), joinedload(OrderItem.service)
+                contains_eager(OrderItem.order).joinedload(Order.buyer),
+                joinedload(OrderItem.service),
             )
         )
         return list(self.db.execute(stmt).scalars().all())

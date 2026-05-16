@@ -49,7 +49,7 @@ class UserPublic(BaseModel):
     id: int
     first_name: str
     last_name: str
-    university: str
+    university: str | None = None
     bio: str | None = None
     avatar_url: str | None = None
     study_sector: str | None = None

@@ -69,6 +69,7 @@ class OrderService:
         )
         try:
             self.order_repo.create(order)
+            self.db.commit()
         except IntegrityError:
             self.db.rollback()
             verify_idempotency = self.order_repo.get_by_idempotency_key(payload.idempotency_key)
@@ -134,6 +135,8 @@ class OrderService:
         if new_status == OrderItemStatus.COMPLETED:
             self._maybe_complete_order(order)
 
+        self.db.commit()
+
         return item
 
     def _check_item_transition_authorization(
@@ -181,5 +184,7 @@ class OrderService:
         for item in order.items:
             if can_transition_item(item.status, OrderItemStatus.CANCELED):
                 self.item_repo.update_status(item, OrderItemStatus.CANCELED)
+
+        self.db.commit()
 
         return order
