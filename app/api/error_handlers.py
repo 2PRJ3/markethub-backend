@@ -4,7 +4,11 @@ from starlette import status
 
 from app.core.exceptions import (
     EmailAlreadyExistsError,
+    ForbiddenActionError,
+    IdempotencyConflictError,
     InvalidCredentialsError,
+    InvalidOrderError,
+    InvalidStateTransitionError,
     NotFoundError,
     UserSuspendedError,
 )
@@ -35,4 +39,32 @@ def register_exception_handlers(app: FastAPI) -> None:
     def suspended_handler(request: Request, exception: UserSuspendedError) -> JSONResponse:
         return JSONResponse(
             status_code=status.HTTP_403_FORBIDDEN, content={"detail": str(exception)}
+        )
+
+    @app.exception_handler(ForbiddenActionError)
+    def forbidden_action_handler(request: Request, exception: ForbiddenActionError) -> JSONResponse:
+        return JSONResponse(
+            status_code=status.HTTP_403_FORBIDDEN, content={"detail": str(exception)}
+        )
+
+    @app.exception_handler(InvalidStateTransitionError)
+    def invalid_transition_handler(
+        request: Request, exception: InvalidStateTransitionError
+    ) -> JSONResponse:
+        return JSONResponse(
+            status_code=status.HTTP_409_CONFLICT, content={"detail": str(exception)}
+        )
+
+    @app.exception_handler(InvalidOrderError)
+    def invalid_order_handler(request: Request, exception: InvalidOrderError) -> JSONResponse:
+        return JSONResponse(
+            status_code=status.HTTP_422_UNPROCESSABLE_CONTENT, content={"detail": str(exception)}
+        )
+
+    @app.exception_handler(IdempotencyConflictError)
+    def idempotency_conflict_handler(
+        request: Request, exception: IdempotencyConflictError
+    ) -> JSONResponse:
+        return JSONResponse(
+            status_code=status.HTTP_409_CONFLICT, content={"detail": str(exception)}
         )
