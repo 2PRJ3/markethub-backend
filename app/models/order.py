@@ -13,6 +13,7 @@ from app.utils.enums import OrderStatus
 
 if TYPE_CHECKING:
     from app.models.order_item import OrderItem
+    from app.models.transaction import Transaction
     from app.models.user import User
 
 
@@ -45,6 +46,8 @@ class Order(Base, TimestampMixin):
     items: Mapped[list["OrderItem"]] = relationship(
         back_populates="order", cascade="all, delete-orphan", passive_deletes=True, lazy="selectin"
     )
+
+    transactions: Mapped[list["Transaction"]] = relationship(back_populates="order", cascade="all")
 
     def __repr__(self) -> str:
         return f"<Order id={self.id} buyer_id={self.buyer_id} status={self.status.value} total={self.total_amount}>"
