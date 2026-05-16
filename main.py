@@ -2,7 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.api.error_handlers import register_exception_handlers
-from app.api.v1 import auth, services, users, order
+from app.api.v1 import auth, order, services, users
 
 app = FastAPI(title="Markethub API")
 app.add_middleware(
