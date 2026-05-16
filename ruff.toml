@@ -14,8 +14,9 @@ ignore = [
 
 [lint.per-file-ignores]
 "tests/*" = ["B011"]
-"alembic/versions/*" = ["E", "W", "F", "I"]
+"alembic/versions/*" = ["ALL"]
 
 [format]
 quote-style = "double"
 indent-style = "space"
+exclude = ["alembic/versions/*"]

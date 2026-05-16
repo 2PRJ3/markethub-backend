@@ -25,3 +25,9 @@ class ServiceRepository(BaseRepository):
     def count_by_seller(self, seller_id: int) -> int:
         stmt = select(func.count()).select_from(self.model).where(self.model.seller_id == seller_id)
         return self.db.execute(stmt).scalar_one()
+
+    def get_many_by_ids(self, ids: list[int]) -> list[Service]:
+        if not ids:
+            return []
+        stmt = select(self.model).where(self.model.id.in_(ids))
+        return list(self.db.execute(stmt).scalars().all())

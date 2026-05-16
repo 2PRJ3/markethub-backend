@@ -10,3 +10,10 @@ def validate_password(value: str) -> str:
             "une majuscule, une minuscule, un chiffre et un caractère spécial (@$!%*?&)"
         )
     return value
+
+
+def validate_unique_service_ids(items: list) -> list:
+    ids = [it.service_id for it in items]
+    if len(ids) != len(set(ids)):
+        raise ValueError("Un même service ne peut pas apparaître deux fois dans la commande.")
+    return items

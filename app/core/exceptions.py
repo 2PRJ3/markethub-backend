@@ -16,3 +16,19 @@ class InvalidCredentialsError(AppException):
 
 class UserSuspendedError(AppException):
     pass
+
+
+class ForbiddenActionError(AppException):
+    pass
+
+
+class InvalidStateTransitionError(AppException):
+    pass
+
+
+class InvalidOrderError(AppException):
+    pass
+
+
+class IdempotencyConflictError(AppException):
+    pass
