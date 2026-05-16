@@ -10,6 +10,10 @@ from app.core.exceptions import (
     InvalidOrderError,
     InvalidStateTransitionError,
     NotFoundError,
+    OrderAlreadyPaidError,
+    OrderNotPayableError,
+    PaymentAmountMismatchError,
+    PaymentDeclinedError,
     UserSuspendedError,
 )
 
@@ -67,4 +71,39 @@ def register_exception_handlers(app: FastAPI) -> None:
     ) -> JSONResponse:
         return JSONResponse(
             status_code=status.HTTP_409_CONFLICT, content={"detail": str(exception)}
+        )
+
+    @app.exception_handler(OrderAlreadyPaidError)
+    def order_already_paid_handler(
+        request: Request, exception: OrderAlreadyPaidError
+    ) -> JSONResponse:
+        return JSONResponse(
+            status_code=status.HTTP_409_CONFLICT, content={"detail": str(exception)}
+        )
+
+    @app.exception_handler(OrderNotPayableError)
+    def order_not_payable_handler(
+        request: Request, exception: OrderNotPayableError
+    ) -> JSONResponse:
+        return JSONResponse(
+            status_code=status.HTTP_409_CONFLICT, content={"detail": str(exception)}
+        )
+
+    @app.exception_handler(PaymentAmountMismatchError)
+    def payment_amount_mismatch_handler(
+        request: Request, exception: PaymentAmountMismatchError
+    ) -> JSONResponse:
+        return JSONResponse(
+            status_code=status.HTTP_409_CONFLICT, content={"detail": str(exception)}
+        )
+
+    @app.exception_handler(PaymentDeclinedError)
+    def payment_declined_handler(request: Request, exception: PaymentDeclinedError) -> JSONResponse:
+        return JSONResponse(
+            status_code=status.HTTP_402_PAYMENT_REQUIRED,
+            content={
+                "detail": str(exception),
+                "reason": exception.reason.value,
+                "transaction_id": exception.transaction_id,
+            },
         )

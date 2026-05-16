@@ -17,3 +17,10 @@ def validate_unique_service_ids(items: list) -> list:
     if len(ids) != len(set(ids)):
         raise ValueError("Un même service ne peut pas apparaître deux fois dans la commande.")
     return items
+
+
+def validate_card_number(value: str) -> str:
+    cleaned_value = value.replace(" ", "")
+    if not (cleaned_value.isdigit() and len(cleaned_value) == 16):
+        raise ValueError("Carte invalide")
+    return cleaned_value

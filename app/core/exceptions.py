@@ -32,3 +32,21 @@ class InvalidOrderError(AppException):
 
 class IdempotencyConflictError(AppException):
     pass
+
+
+class OrderAlreadyPaidError(AppException):
+    pass
+
+
+class OrderNotPayableError(AppException):
+    pass
+
+
+class PaymentAmountMismatchError(AppException):
+    pass
+
+
+class PaymentDeclinedError(AppException):
+    def __init__(self, reason, transaction_id: int):
+        self.reason = reason
+        self.transaction_id = transaction_id
