@@ -1,6 +1,5 @@
 from uuid import UUID, uuid4
 
-from core.exceptions import PaymentDeclinedError
 from sqlalchemy.orm import Session
 
 from app.core.exceptions import (
@@ -9,6 +8,7 @@ from app.core.exceptions import (
     OrderAlreadyPaidError,
     OrderNotPayableError,
     PaymentAmountMismatchError,
+    PaymentDeclinedError,
     UserSuspendedError,
 )
 from app.models.order import Order

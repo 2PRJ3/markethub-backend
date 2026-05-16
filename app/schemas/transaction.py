@@ -39,6 +39,6 @@ class OrderPaymentSummary(BaseModel):
     model_config = {"from_attributes": True}
 
 
-class PaymentSummary(BaseModel):
+class PaymentResponse(BaseModel):
     transaction: TransactionRead
     order: OrderPaymentSummary

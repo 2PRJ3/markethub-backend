@@ -1,4 +1,6 @@
-from fastapi import APIRouter, Depends, status
+from uuid import UUID
+
+from fastapi import APIRouter, Depends, Header, status
 from sqlalchemy.orm import Session
 
 from app.api.deps import get_current_user, get_db
@@ -10,7 +12,14 @@ from app.schemas.order import (
     OrderSummary,
     SellerOrderItemResponse,
 )
+from app.schemas.transaction import (
+    OrderPaymentSummary,
+    PaymentRequest,
+    PaymentResponse,
+    TransactionRead,
+)
 from app.services.order import OrderService
+from app.services.transaction import PaymentService
 
 router = APIRouter(prefix="/orders", tags=["orders"])
 
@@ -95,6 +104,29 @@ def update_item_status(
     service.update_item_status(item_id=item_id, user_id=current_user.id, new_status=payload.status)
     order = service.get_order(order_id=order_id, user_id=current_user.id)
     return OrderResponse.model_validate(order)
+
+
+@router.post(
+    "/{order_id}/pay",
+    response_model=PaymentResponse,
+    status_code=status.HTTP_200_OK,
+    summary="Pour payer une commande",
+)
+def pay_order(
+    order_id: int,
+    payload: PaymentRequest,
+    idempotency_key: UUID | None = Header(default=None, alias="idempotency_key"),
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+) -> PaymentResponse:
+    service = PaymentService(db)
+    transaction, order = service.pay_order(
+        order_id=order_id, idempotency_key=idempotency_key, payment=payload, user_id=current_user.id
+    )
+    return PaymentResponse(
+        transaction=TransactionRead.model_validate(transaction),
+        order=OrderPaymentSummary(id=order.id, status=order.status),
+    )
 
 
 @router.post("/{order_id}/cancel", response_model=OrderResponse, summary="Annuler une commande")
