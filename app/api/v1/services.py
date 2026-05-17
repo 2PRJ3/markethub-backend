@@ -8,6 +8,7 @@ from app.schemas.service import (
     ServiceCreate,
     ServiceDetail,
     ServiceResponse,
+    ServiceSearchParams,
     ServiceSummary,
     ServiceUpdate,
 )
@@ -18,9 +19,14 @@ router = APIRouter(prefix="/services", tags=["services"])
 
 
 @router.get("", response_model=list[ServiceSummary])
-def list_services(skip: int = 0, limit: int = 20, db: Session = Depends(get_db)):
+def list_services(
+    params: ServiceSearchParams = Depends(),
+    skip: int = 0,
+    limit: int = 20,
+    db: Session = Depends(get_db),
+):
     service_layer = ServiceService(db)
-    return service_layer.list_services(skip=skip, limit=limit)
+    return service_layer.search_services(params=params, skip=skip, limit=limit)
 
 
 @router.get("/{service_id}", response_model=ServiceDetail)

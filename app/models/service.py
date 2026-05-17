@@ -2,8 +2,9 @@ from decimal import Decimal
 from typing import TYPE_CHECKING
 
 from sqlalchemy import Enum as SQLEnum
-from sqlalchemy import ForeignKey, Integer, Numeric, String, Text, text
-from sqlalchemy.orm import Mapped, mapped_column, relationship
+from sqlalchemy import ForeignKey, Index, Integer, Numeric, String, Text, text
+from sqlalchemy.dialects.postgresql import TSVECTOR
+from sqlalchemy.orm import Mapped, deferred, mapped_column, relationship
 
 from app.db.base import Base
 from app.models.mixins import SoftDeleteMixin, TimestampMixin
@@ -17,7 +18,13 @@ if TYPE_CHECKING:
 
 class Service(Base, TimestampMixin, SoftDeleteMixin):
     __tablename__ = "services"
-
+    __table_args__ = (
+        Index(
+            "ix_services_search_vector",
+            "search_vector",
+            postgresql_using="gin",
+        ),
+    )
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
 
     seller_id: Mapped[int] = mapped_column(
@@ -50,7 +57,7 @@ class Service(Base, TimestampMixin, SoftDeleteMixin):
     reviews_count: Mapped[int] = mapped_column(
         Integer, nullable=False, default=0, server_default=text("0")
     )
-
+    search_vector: Mapped[str | None] = deferred(mapped_column(TSVECTOR, nullable=True))
     seller: Mapped["User"] = relationship(back_populates="services")
     category: Mapped["Category"] = relationship(back_populates="services")
 
