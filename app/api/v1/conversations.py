@@ -2,6 +2,7 @@ from fastapi import APIRouter, Depends, Query, status
 from sqlalchemy.orm import Session
 
 from app.api.deps import get_current_user, get_db
+from app.core.ws_manager import manager
 from app.models.user import User
 from app.schemas.conversation import (
     ConversationCreate,
@@ -9,7 +10,7 @@ from app.schemas.conversation import (
     ConversationParticipant,
     ConversationRead,
 )
-from app.schemas.message import MessageRead
+from app.schemas.message import MessageRead, WSReadReceipt
 from app.services.messaging import MessagingService
 
 router = APIRouter(prefix="/conversations", tags=["conversations"])
@@ -38,9 +39,7 @@ def list_conversations(
     db: Session = Depends(get_db),
 ) -> list[ConversationListItem]:
     service = MessagingService(db)
-    rows = service.list_conversations(
-        user_id=current_user.id, skip=skip, limit=limit
-    )
+    rows = service.list_conversations(user_id=current_user.id, skip=skip, limit=limit)
 
     return [
         ConversationListItem(
@@ -54,7 +53,8 @@ def list_conversations(
         for conv, other_user, last_msg, unread in rows
     ]
 
-@router.get("/{conversation_id}",response_model=ConversationRead)
+
+@router.get("/{conversation_id}", response_model=ConversationRead)
 def get_conversation(
     conversation_id: int,
     current_user: User = Depends(get_current_user),
@@ -68,7 +68,8 @@ def get_conversation(
     )
     return ConversationRead.model_validate(conversation)
 
-@router.get("/{conversation_id}/messages",response_model=list[MessageRead])
+
+@router.get("/{conversation_id}/messages", response_model=list[MessageRead])
 def list_messages(
     conversation_id: int,
     skip: int = Query(0, ge=0),
@@ -86,10 +87,23 @@ def list_messages(
     return [MessageRead.model_validate(m) for m in messages]
 
 
-@router.post("/{conversation_id}/read",status_code=status.HTTP_204_NO_CONTENT, summary="")
-def mark_as_read(conversation_id: int,current_user: User = Depends(get_current_user),db: Session = Depends(get_db),) -> None:
+@router.post("/{conversation_id}/read", status_code=status.HTTP_204_NO_CONTENT, summary="")
+async def mark_as_read(
+    conversation_id: int,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+) -> None:
     service = MessagingService(db)
-    service.mark_conversation_as_read(
+    service.mark_conversation_as_read(conversation_id=conversation_id, reader_id=current_user.id)
+    service = MessagingService(db)
+    read_at, other_user_id = service.mark_conversation_as_read(
         conversation_id=conversation_id, reader_id=current_user.id
     )
+    if read_at is not None:
+        receipt = WSReadReceipt(
+            conversation_id=conversation_id,
+            reader_id=current_user.id,
+            read_at=read_at,
+        )
+        await manager.send_to_user(other_user_id, receipt)
     return None

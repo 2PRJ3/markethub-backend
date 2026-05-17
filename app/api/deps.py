@@ -1,6 +1,6 @@
 from collections.abc import Generator
 
-from fastapi import Depends, HTTPException, Request, status
+from fastapi import Depends, HTTPException, Query, Request, WebSocket, WebSocketException, status
 from jose import JWTError
 from sqlalchemy.orm import Session
 
@@ -77,3 +77,46 @@ def get_current_admin(current_user: User = Depends(get_current_user)) -> User:
     if current_user.role != UserRole.ADMIN:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Accès interdit")
     return current_user
+
+
+def extract_token_ws(websocket: WebSocket, token: str | None = None) -> str | None:
+    if token:
+        return token
+    return websocket.cookies.get(settings.ACCES_COOKIE_NAME)
+
+
+def get_current_user_ws(
+    websocket: WebSocket,
+    token: str | None = Query(default=None),
+) -> User:
+
+    raw_token = extract_token_ws(websocket, token)
+
+    if not raw_token:
+        raise WebSocketException(code=status.WS_1008_POLICY_VIOLATION)
+
+    try:
+        payload = decode_token(raw_token)
+        if payload.get("type") != "access":
+            raise WebSocketException(code=status.WS_1008_POLICY_VIOLATION)
+
+        user_id_str = payload.get("sub")
+        if user_id_str is None:
+            raise WebSocketException(code=status.WS_1008_POLICY_VIOLATION)
+        user_id_int = int(user_id_str)
+
+    except (JWTError, ValueError):
+        raise WebSocketException(code=status.WS_1008_POLICY_VIOLATION) from None
+
+    with SessionLocal() as db:
+        service = UserService(db)
+        try:
+            user = service.get_by_id(user_id_int)
+        except NotFoundError:
+            raise WebSocketException(code=status.WS_1008_POLICY_VIOLATION) from None
+
+        if user.is_suspended or not user.is_active:
+            raise WebSocketException(code=status.WS_1008_POLICY_VIOLATION)
+
+        db.expunge(user)
+        return user

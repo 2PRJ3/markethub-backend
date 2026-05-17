@@ -55,9 +55,7 @@ class MessagingService:
         total = self.conv_repo.count_for_user(user_id)
         return rows, total
 
-    def get_conversation(
-            self, conversation_id: int, current_user_id: int
-    ) -> Conversation:
+    def get_conversation(self, conversation_id: int, current_user_id: int) -> Conversation:
         return self._ensure_participant(conversation_id, current_user_id)
 
     def _ensure_participant(self, conversation_id: int, user_id: int) -> Conversation:
