@@ -8,6 +8,8 @@ from app.db.base import Base
 from app.utils.enums import UserRole
 
 if TYPE_CHECKING:
+    from app.models.conversation import Conversation
+    from app.models.message import Message
     from app.models.order import Order
     from app.models.order_item import OrderItem
     from app.models.service import Service
@@ -55,6 +57,21 @@ class User(Base, TimestampMixin, SoftDeleteMixin):
 
     sales: Mapped[list["OrderItem"]] = relationship(
         foreign_keys="OrderItem.seller_id", passive_deletes=True
+    )
+    conversations_as_user_one: Mapped[list["Conversation"]] = relationship(
+        foreign_keys="Conversation.user_one_id",
+        back_populates="user_one",
+        cascade="all, delete-orphan",
+    )
+    conversations_as_user_two: Mapped[list["Conversation"]] = relationship(
+        foreign_keys="Conversation.user_two_id",
+        back_populates="user_two",
+        cascade="all, delete-orphan",
+    )
+    sent_messages: Mapped[list["Message"]] = relationship(
+        foreign_keys="Message.sender_id",
+        back_populates="sender",
+        cascade="all, delete-orphan",
     )
 
     def __repr__(self) -> str:
