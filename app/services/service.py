@@ -2,7 +2,7 @@ from sqlalchemy.orm import Session
 
 from app.models.service import Service
 from app.repositories.service import ServiceRepository
-from app.schemas.service import ServiceCreate, ServiceUpdate
+from app.schemas.service import ServiceCreate, ServiceSearchParams, ServiceUpdate
 from app.utils.enums import ServiceStatus
 
 
@@ -42,6 +42,20 @@ class ServiceService:
         self, seller_id: int, skip: int = 0, limit: int = 20
     ) -> list[Service]:
         return self.repo.get_by_seller(seller_id, skip=skip, limit=limit)
+
+    def search_services(
+        self, params: ServiceSearchParams, skip: int = 0, limit: int = 20
+    ) -> list[Service]:
+        normalized_q = params.q.strip() if params.q else None
+        if not normalized_q:
+            normalized_q = None
+
+        cleaned_params = ServiceSearchParams(
+            q=normalized_q,
+            category_id=params.category_id,
+        )
+
+        return self.repo.search(cleaned_params, skip=skip, limit=limit)
 
     def update_service(self, service_id: int, user_id: int, data: ServiceUpdate) -> Service:
         service = self.get_service(service_id)
