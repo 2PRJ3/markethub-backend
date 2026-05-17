@@ -11,6 +11,7 @@ from app.utils.enums import ServiceStatus
 
 if TYPE_CHECKING:
     from app.models.category import Category
+    from app.models.review import Review
     from app.models.user import User
 
 
@@ -52,6 +53,10 @@ class Service(Base, TimestampMixin, SoftDeleteMixin):
 
     seller: Mapped["User"] = relationship(back_populates="services")
     category: Mapped["Category"] = relationship(back_populates="services")
+
+    reviews: Mapped[list["Review"]] = relationship(
+        back_populates="service", cascade="all, delete-orphan", passive_deletes=True, lazy="select"
+    )
 
     def __repr__(self) -> str:
         return f"<Service id={self.id} title={self.title} seller_id={self.seller_id}>"
