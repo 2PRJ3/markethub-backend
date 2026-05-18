@@ -55,3 +55,13 @@ class ServiceSummary(BaseModel):
     seller: UserPublic
 
     model_config = {"from_attributes": True}
+
+
+class ServiceSearchParams(BaseModel):
+    q: str | None = Field(
+        None,
+        min_length=2,
+        max_length=100,
+        description="Texte de recherche full-text sur le titre et la description",
+    )
+    category_id: int | None = Field(None, gt=0, description="Filtrer par catégorie")
