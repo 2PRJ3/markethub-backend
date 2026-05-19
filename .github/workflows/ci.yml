@@ -6,6 +6,7 @@ on:
       - main
       - dev
       - "feat/**"
+      - "chore/**"
   pull_request:
     branches:
       - main
@@ -18,13 +19,16 @@ env:
   REGISTRY: ghcr.io
   IMAGE_NAME: ${{ github.repository }}
   PYTHON_VERSION: "3.12"
+  NODE_VERSION: "20"
 
 jobs:
+  ## Lint job
   lint-check-job:
     name: Lint with ruff
     runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -44,7 +48,8 @@ jobs:
   deploy-image-job:
     name: Build and push docker image
     runs-on: ubuntu-24.04
-    needs: lint-check-job
+    needs:
+      - lint-check-job
     if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/dev')
     permissions:
       contents: read

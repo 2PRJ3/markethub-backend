@@ -1,0 +1,918 @@
+{
+  "info": {
+    "_postman_id": "6a0d8da5-7dad-4803-8061-5d755bfedd5a",
+    "name": "MarketHub",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "47541960",
+    "_collection_link": "https://go.postman.co/collection/47541960-6a0d8da5-7dad-4803-8061-5d755bfedd5a?source=collection_link"
+  },
+  "item": [
+    {
+      "name": "00 - Health Check",
+      "item": [
+        {
+          "name": "GET /health",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('API en ligne', () => pm.response.to.have.status(200));",
+                  "pm.test('Status ok', () => {",
+                  "    const body = pm.response.json();",
+                  "    pm.expect(body.status).to.eql('ok');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/health",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "health"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "01 - Vendeur cree un service",
+      "item": [
+        {
+          "name": "Login vendeur",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Login vendeur reussi', () => pm.response.to.have.status(200));",
+                  "console.log('Vendeur connecte (cookie pose)');"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"email\": \"alice@univ.fr\",\n    \"password\": \"Alice2026&&\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/auth/login",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Creer un service",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Service cree avec succes', () => pm.response.to.have.status(201));",
+                  "const response = pm.response.json();",
+                  "if (response.id) {",
+                  "    pm.environment.set('nouveauServiceId', response.id);",
+                  "    console.log('Service cree - ID: ' + response.id);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Creation de site web professionnel\",\n  \"description\": \"Site complet responsive avec design moderne et optimise SEO.\",\n  \"price\": 150,\n  \"category_id\": 1,\n  \"image_url\": \"https://exemple.com/site-web.jpg\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/services",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "services"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Logout",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Logout reussi', () => pm.expect(pm.response.code).to.be.oneOf([200, 204]));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{}"
+            },
+            "url": {
+              "raw": "{{base_url}}/auth/logout",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "auth",
+                "logout"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "02 - Acheteur commande et paie",
+      "item": [
+        {
+          "name": "Login acheteur",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Login acheteur reussi', () => pm.response.to.have.status(200));",
+                  "console.log('Acheteur connecte (cookie pose)');"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"email\": \"richard.d@univ-val.com\",\n    \"password\": \"Richard2026&&\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/auth/login",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Creer une commande",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "const serviceId = pm.environment.get('nouveauServiceId');",
+                  "if (!serviceId) throw new Error('Service ID manquant - lance d abord la creation du service');",
+                  "",
+                  "const generateUUID = () => {",
+                  "    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {",
+                  "        const r = Math.random() * 16 | 0;",
+                  "        const v = c === 'x' ? r : (r & 0x3 | 0x8);",
+                  "        return v.toString(16);",
+                  "    });",
+                  "};",
+                  "",
+                  "const idempotencyKey = generateUUID();",
+                  "pm.environment.set('current_idempotency_key', idempotencyKey);",
+                  "console.log('Idempotency Key: ' + idempotencyKey);"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Commande creee', () => pm.response.to.have.status(201));",
+                  "const response = pm.response.json();",
+                  "if (response.id) {",
+                  "    pm.environment.set('order_id', response.id);",
+                  "    console.log('Commande creee - ID: ' + response.id);",
+                  "}",
+                  "if (response.items && response.items[0] && response.items[0].id) {",
+                  "    pm.environment.set('item_id', response.items[0].id);",
+                  "    console.log('Order item ID: ' + response.items[0].id);",
+                  "}"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"brief\": \"Test de commande automatise\",\n  \"idempotency_key\": \"{{current_idempotency_key}}\",\n  \"items\": [{\"service_id\": {{nouveauServiceId}}}]\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/orders",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "orders"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Payer la commande",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Paiement reussi', () => pm.response.to.have.status(200));",
+                  "const response = pm.response.json();",
+                  "if (response.order && response.order.status) {",
+                  "    console.log('Statut commande: ' + response.order.status);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"card_number\": \"4242424242424242\",\n  \"card_holder\": \"RICHARD DUPONT\",\n  \"expiry\": \"2028-12\",\n  \"cvv\": \"123\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/orders/{{order_id}}/pay",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "orders",
+                "{{order_id}}",
+                "pay"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Lister mes commandes",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Liste recuperee', () => pm.response.to.have.status(200));",
+                  "const orders = pm.response.json();",
+                  "pm.test('Est un tableau', () => pm.expect(orders).to.be.an('array'));",
+                  "console.log(orders.length + ' commande(s) trouvee(s)');"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/orders/me",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "orders",
+                "me"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Logout",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Logout reussi', () => pm.expect(pm.response.code).to.be.oneOf([200, 204]));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{}"
+            },
+            "url": {
+              "raw": "{{base_url}}/auth/logout",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "auth",
+                "logout"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "03 - Vendeur traite la commande",
+      "item": [
+        {
+          "name": "Login vendeur",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Login vendeur reussi', () => pm.response.to.have.status(200));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"email\": \"alice@univ.fr\",\n    \"password\": \"Alice2026&&\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/auth/login",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Statut -> in_progress",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "if (!pm.environment.get('item_id')) throw new Error('item_id manquant');"
+                ],
+                "type": "text/javascript"
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Statut modifie', () => pm.expect(pm.response.code).to.be.oneOf([200, 204]));",
+                  "console.log('Statut -> in_progress');"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"status\": \"in_progress\"}"
+            },
+            "url": {
+              "raw": "{{base_url}}/orders/{{order_id}}/items/{{item_id}}/status",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "orders",
+                "{{order_id}}",
+                "items",
+                "{{item_id}}",
+                "status"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Statut -> delivered",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Statut modifie', () => pm.expect(pm.response.code).to.be.oneOf([200, 204]));",
+                  "console.log('Statut -> delivered');"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"status\": \"delivered\"}"
+            },
+            "url": {
+              "raw": "{{base_url}}/orders/{{order_id}}/items/{{item_id}}/status",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "orders",
+                "{{order_id}}",
+                "items",
+                "{{item_id}}",
+                "status"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Lister mes ventes",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Liste recuperee', () => pm.response.to.have.status(200));",
+                  "const sales = pm.response.json();",
+                  "pm.test('Est un tableau', () => pm.expect(sales).to.be.an('array'));",
+                  "console.log(sales.length + ' vente(s) trouvee(s)');"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/orders/me/sales",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "orders",
+                "me",
+                "sales"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Logout",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Logout reussi', () => pm.expect(pm.response.code).to.be.oneOf([200, 204]));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{}"
+            },
+            "url": {
+              "raw": "{{base_url}}/auth/logout",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "auth",
+                "logout"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "04 - Acheteur valide et donne un avis",
+      "item": [
+        {
+          "name": "Login acheteur",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Login acheteur reussi', () => pm.response.to.have.status(200));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"email\": \"richard.d@univ-val.com\",\n    \"password\": \"Richard2026&&\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/auth/login",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Statut -> completed",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Statut modifie', () => pm.expect(pm.response.code).to.be.oneOf([200, 204]));",
+                  "console.log('Statut -> completed');"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"status\": \"completed\"}"
+            },
+            "url": {
+              "raw": "{{base_url}}/orders/{{order_id}}/items/{{item_id}}/status",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "orders",
+                "{{order_id}}",
+                "items",
+                "{{item_id}}",
+                "status"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Laisser un avis",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "if (!pm.environment.get('item_id')) throw new Error('item_id manquant');"
+                ],
+                "type": "text/javascript"
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Avis cree', () => pm.response.to.have.status(201));",
+                  "const response = pm.response.json();",
+                  "if (response.id) pm.environment.set('review_id', response.id);",
+                  "pm.test('Note valide', () => {",
+                  "    pm.expect(response.rating).to.be.at.least(1);",
+                  "    pm.expect(response.rating).to.be.at.most(5);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"order_item_id\": {{item_id}},\n  \"rating\": 5,\n  \"comment\": \"Excellent travail, prestation de qualite\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/reviews",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "reviews"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Logout",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Logout reussi', () => pm.expect(pm.response.code).to.be.oneOf([200, 204]));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{}"
+            },
+            "url": {
+              "raw": "{{base_url}}/auth/logout",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "auth",
+                "logout"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "05 - Endpoints publics",
+      "item": [
+        {
+          "name": "Lister les services",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "const services = pm.response.json();",
+                  "pm.test('La reponse est un tableau', () => pm.expect(services).to.be.an('array'));",
+                  "console.log(services.length + ' service(s) trouve(s)');"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/services",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "services"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Rechercher services par categorie et texte",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Recherche reussie', () => pm.response.to.have.status(200));",
+                  "const services = pm.response.json();",
+                  "console.log(services.length + ' resultat(s) trouve(s)');"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/services?category_id=1&q=creation",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "services"
+              ],
+              "query": [
+                {
+                  "key": "category_id",
+                  "value": "1"
+                },
+                {
+                  "key": "q",
+                  "value": "creation"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Lister avis d'un service",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Avis recuperes', () => pm.response.to.have.status(200));",
+                  "const reviews = pm.response.json();",
+                  "pm.test('Est un tableau', () => pm.expect(reviews).to.be.an('array'));",
+                  "console.log(reviews.length + ' avis trouve(s)');"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/services/{{nouveauServiceId}}/reviews",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "services",
+                "{{nouveauServiceId}}",
+                "reviews"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:8000/api/v1"
+    },
+    {
+      "key": "nouveauServiceId",
+      "value": ""
+    },
+    {
+      "key": "order_id",
+      "value": ""
+    },
+    {
+      "key": "item_id",
+      "value": ""
+    },
+    {
+      "key": "review_id",
+      "value": ""
+    },
+    {
+      "key": "current_idempotency_key",
+      "value": ""
+    }
+  ]
+}

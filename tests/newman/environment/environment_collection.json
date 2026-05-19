@@ -1,0 +1,50 @@
+{
+  "name": "dev",
+  "values": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:8000/api/v1",
+      "enabled": true
+    },
+    {
+      "key": "vendeur_token",
+      "value": "",
+      "enabled": true
+    },
+    {
+      "key": "acheteur_token",
+      "value": "",
+      "enabled": true
+    },
+    {
+      "key": "authToken",
+      "value": "",
+      "enabled": true
+    },
+    {
+      "key": "nouveauServiceId",
+      "value": "",
+      "enabled": true
+    },
+    {
+      "key": "order_id",
+      "value": "",
+      "enabled": true
+    },
+    {
+      "key": "item_id",
+      "value": "",
+      "enabled": true
+    },
+    {
+      "key": "review_id",
+      "value": "",
+      "enabled": true
+    },
+    {
+      "key": "current_idempotency_key",
+      "value": "",
+      "enabled": true
+    }
+  ]
+}

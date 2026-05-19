@@ -32,6 +32,6 @@ def read_root():
     return {"message": "Welcome to Markethub API"}
 
 
-@app.get("/health")
+@app.get("/api/v1/health")
 def health():
     return {"status": "ok"}

@@ -53,6 +53,7 @@ class UserPublic(BaseModel):
     bio: str | None = None
     avatar_url: str | None = None
     study_sector: str | None = None
+    created_at: datetime
 
     model_config = {"from_attributes": True}
 
