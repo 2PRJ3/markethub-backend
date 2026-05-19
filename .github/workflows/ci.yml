@@ -67,6 +67,13 @@ jobs:
       - name: Create reports directory
         run: mkdir -p tests/newman/reports
 
+      - name: Setup Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Start API and Database
+        run: | 
+          docker-compose up -d --build
+
       - name: Run API MarketHub
         run: |
           newman run tests/newman/collections/markethub_collection.json \
@@ -91,6 +98,10 @@ jobs:
           name: full-report
           path: tests/newman/reports
           retention-days: 30
+
+      - name: Stop Docker Compose
+        if: always()
+        run: docker-compose down
 
   deploy-image-job:
     name: Build and push docker image
