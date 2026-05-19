@@ -70,9 +70,13 @@ jobs:
       - name: Setup Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      - name: Start API and Database
-        run: | 
-          docker-compose up -d --build
+      - name: Start API
+        run: |
+          docker build -t api-image . && docker run -d -p 8000:8000 api-image
+
+      - name: Start database
+        run : |
+          docker compose up -d
 
       - name: Run API MarketHub
         run: |
@@ -98,10 +102,6 @@ jobs:
           name: full-report
           path: tests/newman/reports
           retention-days: 30
-
-      - name: Stop Docker Compose
-        if: always()
-        run: docker-compose down
 
   deploy-image-job:
     name: Build and push docker image
