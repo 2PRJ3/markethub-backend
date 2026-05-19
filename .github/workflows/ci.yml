@@ -67,22 +67,10 @@ jobs:
       - name: Create reports directory
         run: mkdir -p tests/newman/reports
 
-      - name: Setup Docker Buildx
-        uses: docker/setup-buildx-action@v3
-
-      - name: Start API
+      - name: Run API
         run: |
-          docker build -t api-image . && docker run -d -p 8000:8000 api-image
-
-      - name: Start database
-        run : |
-          docker compose up -d
-
-      - name: Run migration
-        run: |
-           docker-compose exec -T api alembic upgrade head
-
-      - name: Run API MarketHub
+          pip install -r requirements.txt && python main.py
+      - name: Run test API MarketHub
         run: |
           newman run tests/newman/collections/markethub_collection.json \
             -e tests/newman/environment/environment_collection.json \
