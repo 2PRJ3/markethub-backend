@@ -6,6 +6,7 @@ on:
       - main
       - dev
       - "feat/**"
+      - "chore/**"
   pull_request:
     branches:
       - main
@@ -18,13 +19,16 @@ env:
   REGISTRY: ghcr.io
   IMAGE_NAME: ${{ github.repository }}
   PYTHON_VERSION: "3.12"
+  NODE_VERSION: "20"
 
 jobs:
+  ## Lint job
   lint-check-job:
     name: Lint with ruff
     runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -41,10 +45,59 @@ jobs:
       - name: Ruff format check
         run: ruff format --check .
 
+  ## Newman test job
+  newman-test-job:
+    name: Test Newman
+    runs-on: ubuntu-24.04
+    needs: lint-check-job
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node Js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{env.NODE_VERSION}}
+
+      - name: Install Newman
+        run: |
+          npm install -g newman
+          npm install -g newman-reporter-htmlextra
+
+      - name: Create reports directory
+        run: mkdir -p tests/newman/reports
+
+      - name: Run API MarketHub
+        run: |
+          newman run tests/newman/collections/markethub_collection.json \
+            -e tests/newman/environment/environment_collection.json \
+            --reporters cli,htmlextra \
+            --reporter-htmlextra-export tests/newman/reports/report.html \
+            --reporter-htmlextra-title "MarketHub API Test Report" \
+            --reporter-htmlextra-browser-title "MarketHub Tests"
+
+      - name: Upload artefacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: html-report
+          path: tests/newman/reports/report.html
+          retention-days: 30
+
+      - name: Upload entire report folder
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: full-report
+          path: tests/newman/reports
+          retention-days: 30
+
   deploy-image-job:
     name: Build and push docker image
     runs-on: ubuntu-24.04
-    needs: lint-check-job
+    needs:
+      - lint-check-job
+      - newman-test-job
     if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/dev')
     permissions:
       contents: read
