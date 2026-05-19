@@ -39,7 +39,7 @@ def list_conversations(
     db: Session = Depends(get_db),
 ) -> list[ConversationListItem]:
     service = MessagingService(db)
-    rows = service.list_conversations(user_id=current_user.id, skip=skip, limit=limit)
+    rows, _total = service.list_conversations(user_id=current_user.id, skip=skip, limit=limit)
 
     return [
         ConversationListItem(
@@ -78,7 +78,7 @@ def list_messages(
     db: Session = Depends(get_db),
 ) -> list[MessageRead]:
     service = MessagingService(db)
-    messages = service.list_messages(
+    messages, _total = service.list_messages(
         conversation_id=conversation_id,
         current_user_id=current_user.id,
         skip=skip,

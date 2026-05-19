@@ -2,7 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.api.error_handlers import register_exception_handlers
-from app.api.v1 import admin, auth, order, review, services, transaction, users
+from app.api.v1 import admin, auth, order, conversations,review, services, transaction, users, ws
 
 app = FastAPI(title="Markethub API")
 app.add_middleware(
@@ -25,6 +25,10 @@ app.include_router(transaction.router, prefix="/api/v1")
 app.include_router(review.router, prefix="/api/v1")
 
 app.include_router(admin.router, prefix="/api/v1")
+
+app.include_router(conversations.router, prefix="/api/v1")
+
+app.include_router(ws.router)
 
 
 @app.get("/")
