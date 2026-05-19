@@ -78,6 +78,10 @@ jobs:
         run : |
           docker compose up -d
 
+      - name: Run migration
+        run: |
+           docker-compose exec -T api alembic upgrade head
+
       - name: Run API MarketHub
         run: |
           newman run tests/newman/collections/markethub_collection.json \
