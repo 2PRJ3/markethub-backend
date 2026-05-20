@@ -2,7 +2,7 @@ from datetime import datetime
 from decimal import Decimal
 from uuid import UUID
 
-from pydantic import BaseModel, Field, field_validator
+from pydantic import BaseModel, Field, computed_field, field_validator
 
 from app.schemas.service import ServiceSummary
 from app.schemas.user import UserPublic
@@ -28,6 +28,13 @@ class OrderItemResponse(BaseModel):
 
     service: ServiceSummary
     seller: UserPublic
+
+    review: object | None = Field(default=None, exclude=True, repr=False)
+
+    @computed_field
+    @property
+    def has_review(self) -> bool:
+        return self.review is not None
 
     model_config = {"from_attributes": True}
 
