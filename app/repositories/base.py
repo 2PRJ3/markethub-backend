@@ -27,7 +27,7 @@ class BaseRepository[ModelType]:
         """
         Récupérer tous les objets avec pagination
         """
-        stmt = select(self.model).offset(skip).limit(limit)
+        stmt = select(self.model).where(self.model.delete_at.is_(None)).offset(skip).limit(limit)
         return list(self.db.execute(stmt).scalars().all())
 
     def create(self, db_obj: ModelType) -> ModelType:
