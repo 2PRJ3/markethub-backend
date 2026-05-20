@@ -34,7 +34,10 @@ class Review(Base, TimestampMixin):
     rating: Mapped[int] = mapped_column(Integer, nullable=False)
     comment: Mapped[str | None] = mapped_column(Text, nullable=True, default=None)
 
-    order_item: Mapped["OrderItem"] = relationship(foreign_keys=[order_item_id])
+    order_item: Mapped["OrderItem"] = relationship(
+        back_populates="review",
+        foreign_keys=[order_item_id],
+    )
     buyer: Mapped["User"] = relationship(foreign_keys=[buyer_id], lazy="joined")
     service: Mapped["Service"] = relationship(foreign_keys=[service_id], back_populates="reviews")
 

@@ -11,6 +11,7 @@ from app.utils.enums import OrderItemStatus
 
 if TYPE_CHECKING:
     from app.models.order import Order
+    from app.models.review import Review
     from app.models.service import Service
     from app.models.user import User
 
@@ -50,6 +51,13 @@ class OrderItem(Base, TimestampMixin):
     service: Mapped["Service"] = relationship(foreign_keys=[service_id], lazy="joined")
 
     seller: Mapped["User"] = relationship(foreign_keys=[seller_id], lazy="joined")
+
+    review: Mapped["Review | None"] = relationship(
+        back_populates="order_item",
+        foreign_keys="Review.order_item_id",
+        uselist=False,
+        lazy="joined",
+    )
 
     def __repr__(self) -> str:
         return (
