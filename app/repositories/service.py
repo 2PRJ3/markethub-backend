@@ -12,13 +12,20 @@ class ServiceRepository(BaseRepository):
         super().__init__(Service, db)
 
     def get_by_seller(self, seller_id: int, skip: int = 0, limit: int = 100) -> list[Service]:
-        stmt = select(self.model).where(self.model.seller_id == seller_id).offset(skip).limit(limit)
+        stmt = (
+            select(self.model)
+            .where(self.model.seller_id == seller_id)
+            .where(self.model.delete_at.is_(None))
+            .offset(skip)
+            .limit(limit)
+        )
         return list(self.db.execute(stmt).scalars().all())
 
     def get_by_category(self, category_id: int, skip: int = 0, limit: int = 100) -> list[Service]:
         stmt = (
             select(self.model)
             .where(self.model.category_id == category_id)
+            .where(self.model.delete_at.is_(None))
             .offset(skip)
             .limit(limit)
         )
@@ -36,7 +43,7 @@ class ServiceRepository(BaseRepository):
 
     def search(self, params: ServiceSearchParams, skip: int = 0, limit: int = 100) -> list[Service]:
         stmt = self._build_search_stmt(params)
-        stmt = self._apply_search_ordering(stmt, params)
+        stmt = self._apply_search_filters(stmt, params)
         stmt = stmt.offset(skip).limit(limit)
         return list(self.db.execute(stmt).scalars().all())
 
@@ -51,6 +58,7 @@ class ServiceRepository(BaseRepository):
 
     def _apply_search_filters(self, stmt, params: ServiceSearchParams):
         stmt = stmt.where(self.model.status == ServiceStatus.ACTIVE)
+        stmt = stmt.where(self.model.delete_at.is_(None))
 
         if params.category_id is not None:
             stmt = stmt.where(self.model.category_id == params.category_id)
@@ -60,12 +68,3 @@ class ServiceRepository(BaseRepository):
             stmt = stmt.where(self.model.search_vector.op("@@")(tsquery))
 
         return stmt
-
-    def _apply_search_ordering(self, stmt, params: ServiceSearchParams):
-
-        if params.q:
-            tsquery = func.plainto_tsquery("french", params.q)
-            rank = func.ts_rank(self.model.search_vector, tsquery)
-            return stmt.order_by(rank.desc(), self.model.created_at.desc())
-
-        return stmt.order_by(self.model.created_at.desc())

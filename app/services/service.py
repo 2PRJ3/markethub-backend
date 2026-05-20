@@ -30,9 +30,8 @@ class ServiceService:
 
     def get_service(self, service_id: int) -> Service:
         service = self.repo.get_by_id(service_id)
-
-        if not service:
-            raise LookupError(f"Service introuvable: {service_id}")
+        if service is None or service.delete_at is not None:
+            raise LookupError("Service introuvable")
         return service
 
     def list_services(self, skip: int = 0, limit: int = 20) -> list[Service]:
@@ -77,9 +76,9 @@ class ServiceService:
         service = self.get_service(service_id)
 
         if service.seller_id != user_id:
-            raise PermissionError("Vous n'êtes pas autorisé à supprimé ce service")
+            raise PermissionError("Vous n'êtes pas autorisé à supprimer ce service")
 
-        self.repo.delete(service)
+        service.soft_delete()
         self.db.commit()
 
     def admin_set_status(self, service_id: int, status: ServiceStatus) -> Service:
