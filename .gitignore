@@ -7,5 +7,3 @@ node_modules
 .idea
 .vscode
 
-tests/newman/reports
-tests/newman/reports/*.html

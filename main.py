@@ -7,7 +7,7 @@ from app.api.v1 import admin, auth, conversations, order, review, services, tran
 app = FastAPI(title="Markethub API")
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173", "http://localhost:8080"],
+    allow_origins=["http://localhost"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -39,3 +39,8 @@ def read_root():
 @app.get("/api/v1/health")
 def health():
     return {"status": "ok"}
+
+
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run("main:app", host="0.0.0.0", port=8000)
